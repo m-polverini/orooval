@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheInterceptor, CacheModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FunctionsModule } from './modules/functions/functions.module';
@@ -7,6 +7,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { LocalesModule } from './modules/locales/locales.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Locale } from './modules/locales/entities/locale.entity';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -24,12 +25,23 @@ import { Locale } from './modules/locales/entities/locale.entity';
       },
       synchronize: true,
     }),
+    CacheModule.register({
+      ttl: 5,
+      max: 10,
+      isGlobal: true,
+    }),
     FunctionsModule,
     BannersModule,
     ReviewsModule,
     LocalesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
+  ],
 })
 export class AppModule {}
