@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { LocalesService } from './locales.service';
 import { CreateLocaleDto } from './dto/create-locale.dto';
 import { UpdateLocaleDto } from './dto/update-locale.dto';
 
-@Controller('locales')
+@Controller({
+  version: '1',
+  path: 'locales',
+})
 export class LocalesController {
   constructor(private readonly localesService: LocalesService) {}
 
