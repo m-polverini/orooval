@@ -6,20 +6,23 @@ import { BannersModule } from './modules/banners/banners.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { LocalesModule } from './modules/locales/locales.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Locale } from './modules/locales/entities/locale.entity';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
-      url:
-        process.env.DATABASE_URL ||
-        'postgres://jdcjfhnrpoyixs:af47cee3b30e14c0f92ad63ff0527c547b99a9d3dd3c294f181398ab2e592f0b@ec2-54-170-90-26.eu-west-1.compute.amazonaws.com:5432/d57cn4br94sic7',
+      url: process.env.DATABASE_URL,
       type: 'postgres',
       installExtensions: true,
       applicationName: 'oroovalPg',
       connectTimeoutMS: 30000,
-      entities: [Locale],
+      entities: [__dirname + '\\modules\\**\\entities\\*.entity{.ts,.js}'],
       ssl: {
         rejectUnauthorized: false,
       },
@@ -34,6 +37,8 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     BannersModule,
     ReviewsModule,
     LocalesModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [
