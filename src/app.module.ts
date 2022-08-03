@@ -10,6 +10,8 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { Locale } from './modules/locales/entities/locale.entity';
+import { User } from './modules/user/entities/user.entity';
 
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import { UserModule } from './modules/user/user.module';
       installExtensions: true,
       applicationName: 'oroovalPg',
       connectTimeoutMS: 30000,
-      entities: [__dirname + '\\modules\\**\\entities\\*.entity{.ts,.js}'],
+      entities: [Locale, User],
       ssl: {
         rejectUnauthorized: false,
       },
