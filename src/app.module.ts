@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { Locale } from './modules/locales/entities/locale.entity';
 import { User } from './modules/user/entities/user.entity';
+import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -48,6 +49,10 @@ import { User } from './modules/user/entities/user.entity';
     {
       provide: APP_INTERCEPTOR,
       useClass: CacheInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
     },
   ],
 })

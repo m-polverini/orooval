@@ -10,17 +10,17 @@ export class User {
   @Column({ nullable: false })
   @Exclude()
   password: string;
-  @Column({ nullable: false, default: false })
+  @Column({ name: 'is_active', nullable: false, default: false })
   isActive: boolean;
-  @Column({ nullable: false, default: false })
+  @Column({ name: 'is_banned', nullable: false, default: false })
   isBanned: boolean;
   @Column({ nullable: true })
   name?: string;
   @Column({ nullable: true })
   surname?: string;
-  @Column({ nullable: true })
+  @Column({ name: 'display_name', nullable: true })
   displayName?: string;
-  @Column({ nullable: true })
+  @Column({ name: 'birth_data', nullable: true })
   birthData?: Date;
 
   constructor(partial: Partial<User>) {
