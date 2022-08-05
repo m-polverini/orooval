@@ -30,7 +30,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
     }
 
     if (err || !user) {
-      this.logger.debug(`Catched error in login process: ${err}`);
+      this.logger.error(`Catched error in login process: ${err}`);
       throw (
         err ||
         new UnauthorizedException(`The credentials entered are incorrect`)

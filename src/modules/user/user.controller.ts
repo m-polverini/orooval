@@ -31,7 +31,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get(':idOrEmail')
   findOne(@Param('idOrEmail') idOrEmail: string, @Req() req: Request) {
-    console.log(req.signedCookies);
     return this.userService.findByIdOrEmail(idOrEmail);
   }
 

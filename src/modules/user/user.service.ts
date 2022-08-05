@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -56,12 +61,29 @@ export class UserService {
       this.logger.debug(
         `Can't continue with the update user process, user not exist`,
       );
-      throw new BadRequestException(`Utente non esistente`);
+      throw new BadRequestException(`User not exist`);
     }
     const user = this.userRepo.save(
       this.cleanUpdateDto({ ...userExist, ...updateUserDto }),
     );
     this.logger.debug(`Update user process concluded`);
+    return user;
+  }
+
+  async updateRefreshToken(id: string, token: string) {
+    this.logger.debug(`Init update refresh token user process`);
+    const userExist = await this.findByIdOrEmail(id);
+    if (!userExist) {
+      this.logger.debug(
+        `Can't continue with the update user process, user not exist`,
+      );
+      throw new BadRequestException(`User not exist`);
+    }
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(token, salt);
+    userExist.refreshToken = hash;
+    const user = this.userRepo.save(userExist);
+    this.logger.debug(`Update refresh token user process concluded`);
     return user;
   }
 
@@ -72,7 +94,7 @@ export class UserService {
       this.logger.debug(
         `Can't continue with the delete user process, user not exist`,
       );
-      throw new BadRequestException(`Utente non esistente`);
+      throw new BadRequestException(`User not exist`);
     }
     this.userRepo.delete({ id: userExist.id });
     this.logger.debug(`Delete user process concluded`);

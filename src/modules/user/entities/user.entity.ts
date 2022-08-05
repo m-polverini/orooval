@@ -22,6 +22,9 @@ export class User {
   displayName?: string;
   @Column({ name: 'birth_data', nullable: true })
   birthData?: Date;
+  @Column({ name: 'refresh_token', nullable: true })
+  @Exclude()
+  refreshToken?: string;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

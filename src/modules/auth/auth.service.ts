@@ -1,7 +1,13 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -23,14 +29,69 @@ export class AuthService {
     return result;
   }
 
-  login(user: any) {
-    this.logger.debug(`Do jwt sign process`);
-    const payload = { email: user.email, sub: user.userId };
-    return {
-      access_token: this.jwtService.sign(payload, {
-        secret: process.env.JWT_SECRET,
-      }),
-      user: user,
+  login(user: User) {
+    this.logger.debug(`Do refresh token sign process`);
+    const refreshToken = this.signRefreshToken(user);
+    this.userService.updateRefreshToken(user.id, refreshToken);
+    return refreshToken;
+  }
+
+  signRefreshToken(user: User) {
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      displayName: user.displayName,
+      name: user.name,
+      surname: user.surname,
+      birthData: user.birthData,
+      refresh: true,
+      signedAt: new Date().toISOString(),
     };
+    return this.jwtService.sign(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: process.env.JWT_REFRESH_EXPIRES,
+    });
+  }
+
+  signAccessToken(user: User) {
+    this.logger.debug(`Do jwt sign process`);
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      displayName: user.displayName,
+      name: user.name,
+      surname: user.surname,
+      birthData: user.birthData,
+    };
+    return `Bearer ${this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: process.env.JWT_EXPIRES,
+    })}`;
+  }
+
+  getExpiresRefreshToken() {
+    const now = new Date();
+    const time = now.getTime();
+    const timeToAdd = parseInt(process.env.JWT_REFRESH_COOKIE_EXPIRES);
+    const expiresTime = time + timeToAdd;
+    now.setTime(expiresTime);
+    return now;
+  }
+
+  async validateRefreshToken(id: string, token: string) {
+    this.logger.debug(`Init validate refresh token user process`);
+    const userExist = await this.userService.findByIdOrEmail(id);
+    if (!userExist) {
+      this.logger.debug(
+        `Can't continue with the update user process, user not exist`,
+      );
+      throw new BadRequestException(`User not exist`);
+    }
+    this.logger.debug(`Validate refresh token user process concluded`);
+    if (!(await bcrypt.compare(token, userExist.refreshToken)))
+      throw new UnauthorizedException(
+        `You aren't authorized to access the resources, please login`,
+      );
+    return userExist;
   }
 }
