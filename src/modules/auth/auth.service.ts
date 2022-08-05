@@ -8,6 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/entities/user.entity';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
+import * as moment from 'moment';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +19,10 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
-  ) {}
+    private schedulerRegistry: SchedulerRegistry,
+  ) {
+    this.removeExpiredRefreshTokenCron();
+  }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.userService.findByIdOrEmail(email);
@@ -24,19 +30,20 @@ export class AuthService {
       this.logger.debug(`The credentials entered are incorrect`);
       throw new UnauthorizedException(`The credentials entered are incorrect`);
     }
-    const { password, ...result } = user;
+    const { password, refreshToken, tokenData, ...result } = user;
     this.logger.debug(`User found, login process is almost concluded`);
     return result;
   }
 
   login(user: User) {
     this.logger.debug(`Do refresh token sign process`);
-    const refreshToken = this.signRefreshToken(user);
-    this.userService.updateRefreshToken(user.id, refreshToken);
+    const signedAt = new Date();
+    const refreshToken = this.signRefreshToken(user, signedAt);
+    this.userService.updateRefreshToken(user.id, refreshToken, signedAt);
     return refreshToken;
   }
 
-  signRefreshToken(user: User) {
+  signRefreshToken(user: User, signedAt: Date) {
     const payload = {
       email: user.email,
       sub: user.id,
@@ -45,7 +52,7 @@ export class AuthService {
       surname: user.surname,
       birthData: user.birthData,
       refresh: true,
-      signedAt: new Date().toISOString(),
+      signedAt: signedAt.toISOString(),
     };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_REFRESH_SECRET,
@@ -93,5 +100,27 @@ export class AuthService {
         `You aren't authorized to access the resources, please login`,
       );
     return userExist;
+  }
+
+  removeExpiredRefreshTokenCron() {
+    const job = new CronJob(process.env.CRON_REMOVE_REFRESH_TOKEN, async () => {
+      let users = await this.userService.findAllWithRefreshToken();
+      users = users.filter((user) =>
+        this.isRefreshTokenInvalid(user.tokenData),
+      );
+      if (users) {
+        users.forEach((user) => this.userService.removeRefreshToken(user));
+      }
+    });
+
+    this.schedulerRegistry.addCronJob('removeRefreshTokenExpiredFromUser', job);
+    job.start();
+  }
+
+  isRefreshTokenInvalid(tokenData: Date) {
+    const timeToAdd = parseInt(process.env.JWT_REFRESH_COOKIE_EXPIRES);
+    const time = tokenData.getTime() + timeToAdd;
+    const date = moment(time);
+    return date.isBefore(moment());
   }
 }

@@ -25,6 +25,9 @@ export class User {
   @Column({ name: 'refresh_token', nullable: true })
   @Exclude()
   refreshToken?: string;
+  @Column({ name: 'token_data', nullable: true })
+  @Exclude()
+  tokenData?: Date;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

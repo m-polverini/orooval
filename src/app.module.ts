@@ -13,6 +13,7 @@ import { UserModule } from './modules/user/user.module';
 import { Locale } from './modules/locales/entities/locale.entity';
 import { User } from './modules/user/entities/user.entity';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
       max: 10,
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     FunctionsModule,
     BannersModule,
     ReviewsModule,

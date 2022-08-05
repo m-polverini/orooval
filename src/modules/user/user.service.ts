@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -70,7 +70,7 @@ export class UserService {
     return user;
   }
 
-  async updateRefreshToken(id: string, token: string) {
+  async updateRefreshToken(id: string, token: string, tokenData: Date) {
     this.logger.debug(`Init update refresh token user process`);
     const userExist = await this.findByIdOrEmail(id);
     if (!userExist) {
@@ -82,6 +82,7 @@ export class UserService {
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(token, salt);
     userExist.refreshToken = hash;
+    userExist.tokenData = tokenData;
     const user = this.userRepo.save(userExist);
     this.logger.debug(`Update refresh token user process concluded`);
     return user;
@@ -98,6 +99,24 @@ export class UserService {
     }
     this.userRepo.delete({ id: userExist.id });
     this.logger.debug(`Delete user process concluded`);
+  }
+
+  async findAllWithRefreshToken() {
+    this.logger.debug(`Init find all users with refresh token process`);
+    const users = await this.userRepo.find({
+      where: { refreshToken: Not(IsNull()) },
+    });
+    this.logger.debug(`Find all users with refresh token process concluded`);
+    return users;
+  }
+
+  async removeRefreshToken(user: User) {
+    this.logger.debug(`Init remove refresh token process`);
+    this.userRepo.update(
+      { id: user.id },
+      { refreshToken: null, tokenData: null },
+    );
+    this.logger.debug(`Remove refresh token process concluded`);
   }
 
   private cleanUpdateDto(user: User) {
