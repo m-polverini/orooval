@@ -37,6 +37,13 @@ export class LocalAuthGuard extends AuthGuard('local') {
       );
     }
 
+    if (user) {
+      if (user.isBanned)
+        throw new UnauthorizedException('The account is blocked');
+      if (!user.isActive)
+        throw new UnauthorizedException('The account must be activated');
+    }
+
     this.logger.debug(`Login process concluded`);
     return user;
   }

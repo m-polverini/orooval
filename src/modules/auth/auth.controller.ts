@@ -26,8 +26,10 @@ export class AuthController {
       this.authService.signAccessToken(req.user),
     );
     response.cookie('refresh_token', this.authService.login(req.user), {
-      httpOnly: true,
-      signed: true,
+      httpOnly: false,
+      signed: false,
+      sameSite: 'none',
+      secure: true,
       expires: this.authService.getExpiresRefreshToken(),
     });
     return req.user;
