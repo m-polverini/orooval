@@ -80,7 +80,7 @@ export class AuthService {
     const now = new Date();
     const time = now.getTime();
     const timeToAdd = parseInt(process.env.JWT_REFRESH_COOKIE_EXPIRES);
-    const expiresTime = time + timeToAdd;
+    const expiresTime = time + timeToAdd + 7200000;
     now.setTime(expiresTime);
     return now;
   }
