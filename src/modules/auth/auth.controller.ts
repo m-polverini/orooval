@@ -21,17 +21,18 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   async login(@Request() req, @Res({ passthrough: true }) response: Response) {
+    response.setHeader(
+      'Authorization',
+      `Bearer ${this.authService.signAccessToken(req.user)}`,
+    );
     response.cookie('refresh_token', this.authService.login(req.user), {
-      httpOnly: true,
-      signed: true,
+      signed: false,
+      httpOnly: false,
       sameSite: 'none',
-      secure: true,
+      secure: false,
       expires: this.authService.getExpiresRefreshToken(),
     });
-    return {
-      user: req.user,
-      access_token: this.authService.signAccessToken(req.user),
-    };
+    return req.user;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -48,10 +49,10 @@ export class AuthController {
       refreshToken,
     );
     response.cookie('refresh_token', this.authService.login(user), {
-      httpOnly: true,
-      signed: true,
+      signed: false,
+      httpOnly: false,
       sameSite: 'none',
-      secure: true,
+      secure: false,
       expires: this.authService.getExpiresRefreshToken(),
     });
     return { user, access_token: this.authService.signAccessToken(user) };
