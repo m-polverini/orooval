@@ -26,10 +26,10 @@ export class AuthController {
       `Bearer ${this.authService.signAccessToken(req.user)}`,
     );
     response.cookie('refresh_token', this.authService.login(req.user), {
-      signed: false,
-      httpOnly: false,
+      signed: true,
+      httpOnly: true,
       sameSite: 'none',
-      secure: false,
+      secure: true,
       expires: this.authService.getExpiresRefreshToken(),
     });
     return req.user;
