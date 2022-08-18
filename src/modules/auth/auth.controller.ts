@@ -29,6 +29,7 @@ export class AuthController {
       signed: true,
       httpOnly: true,
       secure: true,
+      domain: 'orooval.com',
       expires: this.authService.getExpiresRefreshToken(),
     });
     return req.user;
@@ -51,6 +52,7 @@ export class AuthController {
       signed: true,
       httpOnly: true,
       secure: true,
+      domain: 'orooval.com',
       expires: this.authService.getExpiresRefreshToken(),
     });
     return { user, access_token: this.authService.signAccessToken(user) };
