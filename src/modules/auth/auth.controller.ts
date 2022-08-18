@@ -25,7 +25,13 @@ export class AuthController {
       'Authorization',
       `Bearer ${this.authService.signAccessToken(req.user)}`,
     );
-    response.cookie('refresh_token', this.authService.login(req.user), {});
+    response.cookie('refresh_token', this.authService.login(req.user), {
+      signed: true,
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      expires: this.authService.getExpiresRefreshToken(),
+    });
     return req.user;
   }
 
@@ -42,7 +48,13 @@ export class AuthController {
       req.user.id,
       refreshToken,
     );
-    response.cookie('refresh_token', this.authService.login(user), {});
+    response.cookie('refresh_token', this.authService.login(user), {
+      signed: true,
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      expires: this.authService.getExpiresRefreshToken(),
+    });
     return { user, access_token: this.authService.signAccessToken(user) };
   }
 }

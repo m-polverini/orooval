@@ -7,7 +7,12 @@ import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.enableCors({
+    origin: ['http://localhost:4200', 'https://orooval.com'],
+    exposedHeaders: '*',
+    allowedHeaders: '*',
+    credentials: true,
+  });
   app.enableVersioning({
     type: VersioningType.URI,
   });
