@@ -10,6 +10,7 @@ async function bootstrap() {
   app.enableCors({
     allowedHeaders: ['*'],
     exposedHeaders: ['*'],
+    origin: ['http://localhost:4200', 'https://orooval.netlify.app'],
   });
   app.enableVersioning({
     type: VersioningType.URI,
