@@ -70,10 +70,10 @@ export class AuthService {
       surname: user.surname,
       birthData: user.birthData,
     };
-    return `Bearer ${this.jwtService.sign(payload, {
+    return this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
       expiresIn: process.env.JWT_EXPIRES,
-    })}`;
+    });
   }
 
   getExpiresRefreshToken() {

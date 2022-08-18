@@ -18,10 +18,7 @@ export class ResponseInterceptor implements NestInterceptor<any, HttpResponse> {
     return next.handle().pipe(
       map((val) => {
         const response: ServerResponse = context.switchToHttp().getResponse();
-        // response.setHeader('Access-Control-Allow-Origin', '*');
-        // response.setHeader('Access-Control-Expose-Headers', '*');
-        // response.setHeader('Access-Control-Allow-Methods', '*');
-        // response.setHeader('Access-Control-Allow-Headers', '*');
+        response.removeHeader('x-powered-by');
         if (val instanceof HttpResponse) return val;
         return new HttpResponse(
           response.statusCode,
