@@ -26,7 +26,7 @@ export class AuthController {
       `Bearer ${this.authService.signAccessToken(req.user)}`,
     );
     response.cookie('refresh_token', this.authService.login(req.user), {
-      signed: true,
+      signed: false,
       httpOnly: true,
       secure: true,
       sameSite: 'none',
@@ -50,7 +50,7 @@ export class AuthController {
       refreshToken,
     );
     response.cookie('refresh_token', this.authService.login(user), {
-      signed: true,
+      signed: false,
       httpOnly: true,
       secure: true,
       sameSite: 'none',
