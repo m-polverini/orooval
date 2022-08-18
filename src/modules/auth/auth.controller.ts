@@ -25,14 +25,7 @@ export class AuthController {
       'Authorization',
       `Bearer ${this.authService.signAccessToken(req.user)}`,
     );
-    response.cookie('refresh_token', this.authService.login(req.user), {
-      signed: false,
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      domain: 'orooval.com',
-      expires: this.authService.getExpiresRefreshToken(),
-    });
+    response.cookie('refresh_token', this.authService.login(req.user), {});
     return req.user;
   }
 
@@ -49,14 +42,7 @@ export class AuthController {
       req.user.id,
       refreshToken,
     );
-    response.cookie('refresh_token', this.authService.login(user), {
-      signed: false,
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      domain: 'orooval.com',
-      expires: this.authService.getExpiresRefreshToken(),
-    });
+    response.cookie('refresh_token', this.authService.login(user), {});
     return { user, access_token: this.authService.signAccessToken(user) };
   }
 }
