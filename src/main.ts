@@ -11,6 +11,7 @@ async function bootstrap() {
     allowedHeaders: ['*'],
     exposedHeaders: ['*'],
     origin: ['http://localhost:4200', 'https://orooval.netlify.app'],
+    credentials: true,
   });
   app.enableVersioning({
     type: VersioningType.URI,
