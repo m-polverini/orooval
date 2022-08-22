@@ -14,7 +14,7 @@ async function bootstrap() {
       'https://www.orooval.com',
     ],
     exposedHeaders: '*',
-    allowedHeaders: '*',
+    allowedHeaders: ['accept', 'content-type', 'referer', 'user-agent'],
     credentials: true,
   });
   app.enableVersioning({
