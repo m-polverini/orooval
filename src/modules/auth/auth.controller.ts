@@ -49,6 +49,10 @@ export class AuthController {
       req.user.id,
       refreshToken,
     );
+    response.setHeader(
+      'Authorization',
+      `Bearer ${this.authService.signAccessToken(user)}`,
+    );
     response.cookie('refresh_token', this.authService.login(user), {
       signed: true,
       httpOnly: true,
@@ -56,6 +60,6 @@ export class AuthController {
       sameSite: 'none',
       expires: this.authService.getExpiresRefreshToken(),
     });
-    return { user, access_token: this.authService.signAccessToken(user) };
+    return user;
   }
 }
