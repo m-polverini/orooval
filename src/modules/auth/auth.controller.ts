@@ -43,6 +43,7 @@ export class AuthController {
     @Request() req,
     @Res({ passthrough: true }) response: Response,
   ) {
+    console.log(req.signedCookies);
     const refreshToken = req.signedCookies.refresh_token;
     const user = await this.authService.validateRefreshToken(
       req.user.id,
